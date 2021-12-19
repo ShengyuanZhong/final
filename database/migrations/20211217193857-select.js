@@ -5,8 +5,8 @@ module.exports = {
     const { INTEGER, DATE, } = Sequelize.DataTypes
     await queryInterface.createTable( 'selects', {
       id: { type: INTEGER, primaryKey: true, autoIncrement: true },
-      userId: INTEGER,
-      courseId: INTEGER,
+      user_id: INTEGER,
+      course_id: INTEGER,
       number: INTEGER,
       created_at: DATE,
       updated_at: DATE
