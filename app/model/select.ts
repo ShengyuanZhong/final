@@ -5,7 +5,6 @@ class Select extends Model {
   id: number
   userId: number
   courseId: number
-  number: number
   day:number
   time:number
   readonly createdAt: Date
@@ -19,7 +18,6 @@ export default ( app: Application ) => {
     id: { type: INTEGER, primaryKey: true, autoIncrement: true },
     userId: INTEGER,
     courseId: INTEGER,
-    number: INTEGER,
     day: INTEGER,
     time: INTEGER,
     created_at: DATE,

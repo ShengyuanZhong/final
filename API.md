@@ -253,7 +253,7 @@
 
 [查询某个用户的课表信息](#get-select-user) `GET {base_url}/api/admin/shcedule/user`
 
-[查询某课程被选的情况](#get-select-course) `GET {base_url}/api/admin/schdule/course`
+[查询某课程被选的情况](#get-select-course) `GET {base_url}/api/admin/schedule/course`
 
 [修改一门课的信息](#change-courseinfo) `PUT {base_url}/api/admin/changeinfo`
 

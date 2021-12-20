@@ -7,7 +7,6 @@ module.exports = {
       id: { type: INTEGER, primaryKey: true, autoIncrement: true },
       user_id: INTEGER,
       course_id: INTEGER,
-      number: INTEGER,
       day:INTEGER,
       time:INTEGER,
       created_at: DATE,

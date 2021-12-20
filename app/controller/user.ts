@@ -91,40 +91,56 @@ export default class HomeController extends Controller {
     const { page, limit } = ctx.query
     let page2 = parseInt(page)
     let limit2 = parseInt(limit)
-    const data = await User.findAndCountAll({
-      limit: limit2,
-      offset: limit2 * (page2-1),
-      attributes:['id','number','name']
-    })
-    ctx.body = {
-      success:true,
-      data
+    if(page2>0&&limit2>0){
+      const data = await User.findAndCountAll({
+        limit: limit2,
+        offset: limit2 * (page2-1),
+        attributes:['id','number','name']
+      })
+      ctx.body = {
+        success:true,
+        data
+      }
+    } else {
+      ctx.body = {
+        success:false,
+        error:'输入的信息有误'
+      }
     }
-  }
 
-  public async getuserinfo(){//差某个人的课表
+}
+
+  public async getuserinfo(){//查某个人的课表
     const { ctx } = this
     const { userId, page, limit } = ctx.query
     let page2 = parseInt(page)
     let limit2 = parseInt(limit)
     let userId2 = parseInt(userId)
-    const data = await ctx.model.Select.findAll({
-      limit: limit2,
-      offset: limit2 * (page2-1),
-      attributes:['id','userId','courseId'],
-      where: {
-        userId: userId2
-      },
-      include:[{
-        model:ctx.model.Course,
-        as:'course',
-        attributes:['name','capacity','number']
-      }]
-    })
-    ctx.body = {
-      success:true,
-      data
+    if(page2>0&&limit2>0&&userId2>0){
+      const data = await ctx.model.Select.findAndCountAll({
+        limit: limit2,
+        offset: limit2 * (page2-1),
+        attributes:['id','userId','courseId'],
+        where: {
+          userId: userId2
+        },
+        include:[{
+          model:ctx.model.Course,
+          as:'course',
+          attributes:['name','capacity','number']
+        }]
+      })
+      ctx.body = {
+        success:true,
+        data
+      }
+    } else {
+      ctx.body = {
+        success:false,
+        error:'输入的信息有误'
+      }
     }
+
 
 
     
@@ -137,22 +153,30 @@ export default class HomeController extends Controller {
     let page2 = parseInt(page)
     let limit2 = parseInt(limit)
     let id2 = ctx.session.id
-    const data = await ctx.model.Select.findAndCountAll({
-      limit: limit2,
-      offset: limit2 * (page2-1),
-      attributes:['courseId'],
-      where: {
-        userId: id2
-      },
-      include:[{
-        model:ctx.model.Course,
-        as:'course',
-        attributes:['id','name','capacity','number','day','time']
-      }]
-    })
-    ctx.body = {
-      success:true,
-      data
+    if(page2>0&&limit2>0){
+      const data = await ctx.model.Select.findAndCountAll({
+        limit: limit2,
+        offset: limit2 * (page2-1),
+        attributes:['courseId'],
+        where: {
+          userId: id2
+        },
+        include:[{
+          model:ctx.model.Course,
+          as:'course',
+          attributes:['id','name','capacity','number','day','time']
+        }]
+      })
+      ctx.body = {
+        success:true,
+        data
+      }
+    } else {
+      ctx.body = {
+        success:false,
+        error:'输入的信息有误'
+      }
     }
+
   }
 }
