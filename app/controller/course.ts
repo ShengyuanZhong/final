@@ -15,33 +15,20 @@ export default class HomeController extends Controller {
       day:'number',
       time:'number'
     })
-    if (day>1&&day<7&&time>1&&time<5){
-
-      let jikann = await ctx.model.Course.findOne({
-        where:{
-          day:day,
-          time:time
-        }
-      })
-      if(jikann){
-        ctx.body = {
-          success:false,
-          error: '不在允许的时间段内'
-        }
-      } else {
-        Course.create( {name: name, capacity: capacity, day: day, time: time, number: 0 } )
-        Choose.create( {courseName: name, capacity: capacity, day: day, time: time, number: 0 } )
-        ctx.body = { 
-          success: true,
-        }
-      }
-    } else {
+    if (day<1||day>7||time<1||time>5){ 
       ctx.body = {
         success:false,
         error: '不在允许的时间段内'
       }
-    }
+      
+    } else {
 
+      Course.create( {name: name, capacity: capacity, day: day, time: time, number: 0 } )
+      Choose.create( {courseName: name, capacity: capacity, day: day, time: time, number: 0 } )
+      ctx.body = { 
+        success: true,
+    }
+  }
   }
 
   public async getCourseInfo() {//查看所有课程
@@ -79,7 +66,24 @@ export default class HomeController extends Controller {
           error: '人数不能大于课程容量'
         }
       } else {
-        let up = await ctx.model.Course.update({
+        if(day<1||day>7||time<1||time>5){
+          ctx.body = {
+            success:false,
+            error: '不在允许的时间段内'
+          }
+        } else {
+          let up = await ctx.model.Course.update({
+            name : name,
+            number : number,
+            capacity : capacity,
+            day : day,
+            time : time
+        },{
+            where:{
+                id : id
+            }
+        })
+        await ctx.model.Choose.update({
           name : name,
           number : number,
           capacity : capacity,
@@ -90,21 +94,19 @@ export default class HomeController extends Controller {
               id : id
           }
       })
-      await ctx.model.Choose.update({
-        name : name,
-        number : number,
-        capacity : capacity,
+      await ctx.model.Select.update({
         day : day,
         time : time
     },{
         where:{
-            id : id
+            courseId : id
         }
     })
-    console.log(up)
-    ctx.body = {
-      success: true
-    }
+      console.log(up)
+      ctx.body = {
+        success: true
+      }  
+        }
       }
     } else {
       ctx.body = {
@@ -114,7 +116,6 @@ export default class HomeController extends Controller {
     }
 
   }
-
 
   public async deleteCourse(){//删除课程
     const { ctx } = this
@@ -136,32 +137,49 @@ export default class HomeController extends Controller {
   }
 }
 
-
   public async selectCourse(){//选课
     const {ctx}=this
     const {courseId}=ctx.request.body
-    const id=ctx.session.id
-      ctx.model.Course.increment('number',{where:{id:courseId}})
-      ctx.model.Select.create({courseId:courseId,userId:id})
-
-      ctx.body = 1
+    const jikann = await ctx.model.Course.findAll({
+      where:{
+        id : courseId
+      },
+      attributes:['day','time']
+    })
+    const day = jikann[0].day
+    const time = jikann[0].time
+    let final = await ctx.model.Select.findOne({
+      where:{
+        day:day,
+        time:time
+      }
+    })
+    if (final){
+      ctx.body = {
+        success:false,
+        error:'此时间段已有课程'
+      }
+    } else {
+      ctx.model.Select.create({courseId:courseId,userId:ctx.session.id,day:day,time:time})
+      ctx.body = {
+        success:true
+      }
     }
-
-
+    }
 
   public async DeleteCourse(){//退课
     const {ctx}=this
     const { id } = ctx.params
-
-    let course = await ctx.model.Course.findOne({
+    let course = await ctx.model.Select.findOne({
       where: {
-        id:id
+        courseId:id,
+        userId:ctx.session.id
       }
     })
   if ( course ) {
     ctx.model.Select.destroy({
       where:{
-          id:id
+          courseId:id
       }
   })
     ctx.model.Course.decrement('number',{where:{id:id}})

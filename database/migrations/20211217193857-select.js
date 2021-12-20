@@ -8,6 +8,8 @@ module.exports = {
       user_id: INTEGER,
       course_id: INTEGER,
       number: INTEGER,
+      day:INTEGER,
+      time:INTEGER,
       created_at: DATE,
       updated_at: DATE
     })

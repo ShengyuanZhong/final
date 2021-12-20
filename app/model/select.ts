@@ -6,6 +6,8 @@ class Select extends Model {
   userId: number
   courseId: number
   number: number
+  day:number
+  time:number
   readonly createdAt: Date
   readonly updateAt: Date
 
@@ -18,6 +20,8 @@ export default ( app: Application ) => {
     userId: INTEGER,
     courseId: INTEGER,
     number: INTEGER,
+    day: INTEGER,
+    time: INTEGER,
     created_at: DATE,
     updated_at: DATE
   }, {

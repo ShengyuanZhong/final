@@ -111,10 +111,15 @@ export default class HomeController extends Controller {
     const data = await ctx.model.Select.findAll({
       limit: limit2,
       offset: limit2 * (page2-1),
-      attributes:['id','courseid','userid'],
+      attributes:['id','userId','courseId'],
       where: {
-        userid: userId2
+        userId: userId2
       },
+      include:[{
+        model:ctx.model.Course,
+        as:'course',
+        attributes:['name','capacity','number']
+      }]
     })
     ctx.body = {
       success:true,
