@@ -63,11 +63,11 @@ export default class HomeController extends Controller {
     const { ctx } = this
     ctx.validate({
       id:'number',
-      name: 'string',
-      number:'number',
-      capacity: 'number',
-      day:'number',
-      time:'number'
+      name: 'string?',
+      number:'number?',
+      capacity: 'number?',
+      day:'number?',
+      time:'number?'
     })
     const { id, name, number, capacity, day, time } = ctx.request.body
     const numcap = await ctx.model.Course.findAll({
@@ -91,12 +91,12 @@ export default class HomeController extends Controller {
           }
         }else{
           ctx.body = {
-            success:false,
+            success:1,
             error:'人数不能超过课程容量'
           }
         }
       }else{
-        if(capacity>numcap[0].number){
+        if(capacity>=numcap[0].number){
           if(name){ctx.model.Course.update({name : name},{where:{id : id}})}
           if(day){ctx.model.Course.update({day:day},{where:{id : id}})}
           if(time){ctx.model.Course.update({time:time},{where:{id : id}})}
@@ -106,7 +106,7 @@ export default class HomeController extends Controller {
           }
         }else{
           ctx.body = {
-            success:false,
+            success:2,
             error:'人数不能超过课程容量'
           }
         }
@@ -114,17 +114,17 @@ export default class HomeController extends Controller {
      }else{
        if(number){
          if(number>numcap[0].capacity){
+          ctx.body = {
+            success:3,
+            error:'人数不能超过课程容量'
+          }
+         }else{
           if(name){ctx.model.Course.update({name : name},{where:{id : id}})}
           if(day){ctx.model.Course.update({day:day},{where:{id : id}})}
           if(time){ctx.model.Course.update({time:time},{where:{id : id}})}
           ctx.model.Course.update({number:number},{where:{id : id}})
           ctx.body = {
             success:true
-          }
-         }else{
-          ctx.body = {
-            success:false,
-            error:'人数不能超过课程容量'
           }
          }
        }else{
@@ -138,11 +138,12 @@ export default class HomeController extends Controller {
      }
   } else {
     ctx.body = {
-      success: false,
+      success: 4,
       error:'课程不存在'
     }
   }
 }
+
 
   public async deleteCourse(){//删除课程
     const { ctx } = this
@@ -187,37 +188,49 @@ export default class HomeController extends Controller {
     ctx.validate({
       courseId:'number'
     })
-    if ( courseId > 0 ){
-      const jikann = await ctx.model.Course.findAll({
-        where:{
-          id : courseId
-        },
-        attributes:['day','time']
-      })
-      const day = jikann[0].day
-      const time = jikann[0].time
-      let final = await ctx.model.Select.findOne({
-        where:{
-          day:day,
-          time:time
-        }
-      })
-      if (final){
-        ctx.body = {
-          success:false,
-          error:'此时间段已有课程'
+    const check = await ctx.model.Course.findOne({
+      where:{
+        id:courseId
+      }
+    })
+    if(check){
+      if ( courseId > 0 ){
+        const jikann = await ctx.model.Course.findAll({
+          where:{
+            id : courseId
+          },
+          attributes:['day','time']
+        })
+        const day = jikann[0].day
+        const time = jikann[0].time
+        let final = await ctx.model.Select.findOne({
+          where:{
+            day:day,
+            time:time
+          }
+        })
+        if (final){
+          ctx.body = {
+            success:false,
+            error:'此时间段已有课程'
+          }
+        } else {
+          ctx.model.Course.increment('number',{where:{id:courseId}})
+          ctx.model.Select.create({courseId:courseId,userId:ctx.session.id,day:day,time:time})
+          ctx.body = {
+            success:true
+          }
         }
       } else {
-        ctx.model.Course.increment('number',{where:{id:courseId}})
-        ctx.model.Select.create({courseId:courseId,userId:ctx.session.id,day:day,time:time})
         ctx.body = {
-          success:true
+          success:false,
+          error:'输入的信息有误'
         }
-      }
-    } else {
+    }
+    }else{
       ctx.body = {
         success:false,
-        error:'输入的信息有误'
+        error:'课程不存在'
       }
     }
 
